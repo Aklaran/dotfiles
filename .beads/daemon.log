@@ -1,0 +1,82 @@
+time=2026-02-12T11:11:52.012-05:00 level=INFO msg="Daemon started" interval=5s auto_commit=false auto_push=false
+time=2026-02-12T11:11:52.013-05:00 level=INFO msg="using database" path=/home/annapurna/repos/dotfiles/.beads/beads.db
+time=2026-02-12T11:11:52.072-05:00 level=INFO msg="database opened" path=/home/annapurna/repos/dotfiles/.beads/beads.db backend=sqlite freshness_checking=true
+time=2026-02-12T11:11:52.072-05:00 level=INFO msg="upgrading .beads/.gitignore"
+time=2026-02-12T11:11:52.072-05:00 level=WARN msg="failed to upgrade .gitignore" error="open .beads/.gitignore: no such file or directory"
+time=2026-02-12T11:11:52.073-05:00 level=INFO msg="Repository fingerprint validated" repo_id=c8f7e304
+time=2026-02-12T11:11:52.073-05:00 level=INFO msg="starting RPC server" socket=/home/annapurna/repos/dotfiles/.beads/bd.sock
+time=2026-02-12T11:11:52.074-05:00 level=INFO msg="RPC server ready (socket listening)"
+time=2026-02-12T11:11:52.076-05:00 level=INFO msg="registered in global registry"
+time=2026-02-12T11:11:52.076-05:00 level=WARN msg="initial import failed (continuing anyway)" error="failed to open JSONL: open /home/annapurna/repos/dotfiles/.beads/issues.jsonl: no such file or directory"
+time=2026-02-12T11:11:52.076-05:00 level=INFO msg="Starting sync cycle" mode="sync cycle"
+time=2026-02-12T11:11:52.077-05:00 level=INFO msg="Exported to JSONL"
+time=2026-02-12T11:11:52.437-05:00 level=INFO msg="Pulled from remote"
+time=2026-02-12T11:11:52.442-05:00 level=INFO msg="Imported from JSONL"
+time=2026-02-12T11:11:52.451-05:00 level=INFO msg="Sync cycle complete"
+time=2026-02-12T11:11:52.451-05:00 level=INFO msg="monitoring parent process" pid=0
+time=2026-02-12T11:11:52.451-05:00 level=INFO msg="using event-driven mode"
+time=2026-02-12T11:11:52.451-05:00 level=INFO msg="Auto-pull disabled: use 'git pull' manually to sync remote changes"
+time=2026-02-12T11:11:52.451-05:00 level=INFO msg="Mutation detected" type=create issue_id=dotfiles-uum
+time=2026-02-12T11:11:52.951-05:00 level=INFO msg="Export triggered by mutation events"
+time=2026-02-12T11:11:52.952-05:00 level=INFO msg=Starting mode=export
+time=2026-02-12T11:11:52.952-05:00 level=INFO msg="JSONL changed externally, importing before export"
+time=2026-02-12T11:11:52.956-05:00 level=INFO msg="Auto-import complete, proceeding with export"
+time=2026-02-12T11:11:52.957-05:00 level=INFO msg="JSONL file created" path=/home/annapurna/repos/dotfiles/.beads/issues.jsonl
+time=2026-02-12T11:11:52.957-05:00 level=INFO msg="Exported to JSONL"
+time=2026-02-12T11:11:52.957-05:00 level=INFO msg="Export complete"
+time=2026-02-12T11:11:53.959-05:00 level=INFO msg="Import triggered by file change"
+time=2026-02-12T11:11:53.960-05:00 level=INFO msg="Starting auto-import" mode=auto-import
+time=2026-02-12T11:11:53.961-05:00 level=INFO msg="WARNING: Uncommitted local changes detected" path=/home/annapurna/repos/dotfiles/.beads/issues.jsonl
+time=2026-02-12T11:11:53.961-05:00 level=INFO msg="   Pulling from remote may overwrite local unpushed changes."
+time=2026-02-12T11:11:53.961-05:00 level=INFO msg="   Consider running 'bd sync' to commit and push your changes first."
+time=2026-02-12T11:11:54.281-05:00 level=INFO msg="Pulled from remote"
+time=2026-02-12T11:11:54.281-05:00 level=INFO msg="🔍 Checking JSONL content hash AFTER pull (fix: auto-pull-not-pulling)"
+time=2026-02-12T11:11:54.281-05:00 level=INFO msg="JSONL content changed, proceeding with operation..." mode=auto-import
+time=2026-02-12T11:11:54.283-05:00 level=INFO msg="Imported from JSONL"
+time=2026-02-12T11:11:54.283-05:00 level=INFO msg="Auto-import complete"
+time=2026-02-12T11:11:59.825-05:00 level=INFO msg="Mutation detected" type=create issue_id=dotfiles-nuh
+time=2026-02-12T11:12:00.325-05:00 level=INFO msg="Export triggered by mutation events"
+time=2026-02-12T11:12:00.326-05:00 level=INFO msg=Starting mode=export
+time=2026-02-12T11:12:00.326-05:00 level=INFO msg="JSONL changed externally, importing before export"
+time=2026-02-12T11:12:00.330-05:00 level=INFO msg="Auto-import complete, proceeding with export"
+time=2026-02-12T11:12:00.333-05:00 level=INFO msg="JSONL file created" path=/home/annapurna/repos/dotfiles/.beads/issues.jsonl
+time=2026-02-12T11:12:00.334-05:00 level=INFO msg="Exported to JSONL"
+time=2026-02-12T11:12:00.334-05:00 level=INFO msg="Export complete"
+time=2026-02-12T11:12:01.334-05:00 level=INFO msg="Import triggered by file change"
+time=2026-02-12T11:12:01.335-05:00 level=INFO msg="Starting auto-import" mode=auto-import
+time=2026-02-12T11:12:01.337-05:00 level=INFO msg="WARNING: Uncommitted local changes detected" path=/home/annapurna/repos/dotfiles/.beads/issues.jsonl
+time=2026-02-12T11:12:01.337-05:00 level=INFO msg="   Pulling from remote may overwrite local unpushed changes."
+time=2026-02-12T11:12:01.337-05:00 level=INFO msg="   Consider running 'bd sync' to commit and push your changes first."
+time=2026-02-12T11:12:01.892-05:00 level=INFO msg="Pulled from remote"
+time=2026-02-12T11:12:01.892-05:00 level=INFO msg="🔍 Checking JSONL content hash AFTER pull (fix: auto-pull-not-pulling)"
+time=2026-02-12T11:12:01.892-05:00 level=INFO msg="JSONL content changed, proceeding with operation..." mode=auto-import
+time=2026-02-12T11:12:01.895-05:00 level=INFO msg="Imported from JSONL"
+time=2026-02-12T11:12:01.895-05:00 level=INFO msg="Auto-import complete"
+time=2026-02-12T11:14:08.496-05:00 level=INFO msg="JSONL file created" path=/home/annapurna/repos/dotfiles/.beads/issues.jsonl
+time=2026-02-12T11:14:08.496-05:00 level=INFO msg="File change detected" path=/home/annapurna/repos/dotfiles/.beads/issues.jsonl
+time=2026-02-12T11:14:09.498-05:00 level=INFO msg="Import triggered by file change"
+time=2026-02-12T11:14:09.501-05:00 level=INFO msg="Starting auto-import" mode=auto-import
+time=2026-02-12T11:14:09.503-05:00 level=INFO msg="WARNING: Uncommitted local changes detected" path=/home/annapurna/repos/dotfiles/.beads/issues.jsonl
+time=2026-02-12T11:14:09.503-05:00 level=INFO msg="   Pulling from remote may overwrite local unpushed changes."
+time=2026-02-12T11:14:09.503-05:00 level=INFO msg="   Consider running 'bd sync' to commit and push your changes first."
+time=2026-02-12T11:14:09.751-05:00 level=INFO msg="Pulled from remote"
+time=2026-02-12T11:14:09.751-05:00 level=INFO msg="🔍 Checking JSONL content hash AFTER pull (fix: auto-pull-not-pulling)"
+time=2026-02-12T11:14:09.752-05:00 level=INFO msg="Skipping: JSONL content unchanged" mode=auto-import
+time=2026-02-12T11:14:52.488-05:00 level=INFO msg="File change detected" path=/home/annapurna/repos/dotfiles/.beads/issues.jsonl
+time=2026-02-12T11:14:52.488-05:00 level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-02-12T11:14:52.538-05:00 level=INFO msg="JSONL still missing, retrying..." delay=50ms
+time=2026-02-12T11:14:52.638-05:00 level=INFO msg="JSONL still missing, retrying..." delay=100ms
+time=2026-02-12T11:14:52.838-05:00 level=INFO msg="JSONL still missing, retrying..." delay=200ms
+time=2026-02-12T11:14:53.239-05:00 level=INFO msg="JSONL still missing, retrying..." delay=400ms
+time=2026-02-12T11:14:53.239-05:00 level=INFO msg="Failed to re-establish JSONL watch after all retries"
+time=2026-02-12T11:14:53.489-05:00 level=INFO msg="Import triggered by file change"
+time=2026-02-12T11:14:53.490-05:00 level=INFO msg="Starting auto-import" mode=auto-import
+time=2026-02-12T11:14:53.766-05:00 level=INFO msg="Pulled from remote"
+time=2026-02-12T11:14:53.766-05:00 level=INFO msg="🔍 Checking JSONL content hash AFTER pull (fix: auto-pull-not-pulling)"
+time=2026-02-12T11:14:53.766-05:00 level=INFO msg="Skipping: JSONL content unchanged" mode=auto-import
+time=2026-02-12T11:14:58.083-05:00 level=INFO msg="Git ref change detected" path=/home/annapurna/repos/dotfiles/.git/refs/heads/main.lock
+time=2026-02-12T11:14:59.083-05:00 level=INFO msg="Import triggered by file change"
+time=2026-02-12T11:14:59.084-05:00 level=INFO msg="Starting auto-import" mode=auto-import
+time=2026-02-12T11:14:59.385-05:00 level=INFO msg="Pulled from remote"
+time=2026-02-12T11:14:59.385-05:00 level=INFO msg="🔍 Checking JSONL content hash AFTER pull (fix: auto-pull-not-pulling)"
+time=2026-02-12T11:14:59.385-05:00 level=INFO msg="Skipping: JSONL content unchanged" mode=auto-import
