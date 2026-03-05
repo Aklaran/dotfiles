@@ -22,5 +22,15 @@ for pkg in nvim ghostty; do
   stow --restow --target="$HOME" "$pkg"
 done
 
+# Merge zsh snippets into existing .zshrc (append if not already present)
+MARKER="# --- dotfiles/zsh ---"
+if ! grep -qF "$MARKER" "$HOME/.zshrc" 2>/dev/null; then
+  echo "  Appending zsh snippets to ~/.zshrc..."
+  printf '\n%s\n' "$MARKER" >> "$HOME/.zshrc"
+  cat "$DOTFILES_DIR/zsh/zshrc.snippet" >> "$HOME/.zshrc"
+else
+  echo "  zsh snippets already in ~/.zshrc, skipping."
+fi
+
 echo ""
 echo "Done! Restart your terminal/editor to pick up changes."
