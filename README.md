@@ -92,7 +92,8 @@ Before applying this repo to a new machine, review these files for identity- or 
 
 Interactive flow:
 - prompts for `user.name` / `user.email` if `~/.gitconfig.local` is missing
-- generates `~/.ssh/id_ed25519` if needed
+- reuses an existing SSH agent if `SSH_AUTH_SOCK` already has loaded identities (great for DevPod / forwarded-agent setups)
+- otherwise generates `~/.ssh/id_ed25519` if needed
 - offers to upload the public key with `gh ssh-key add` when GitHub CLI is already authenticated
 
 Non-interactive flow:
@@ -107,6 +108,7 @@ Useful overrides:
 - `DOTFILES_GITCONFIG_LOCAL` — alternate location for the per-machine Git identity file
 - `DOTFILES_SSH_KEY_PATH` — alternate SSH key path
 - `DOTFILES_SKIP_APPLY=1` — run bootstrap steps without applying chezmoi
+- `DOTFILES_FORCE_SSH_KEYGEN=1` — create a local SSH key even if an agent is already available
 
 ## Customization
 

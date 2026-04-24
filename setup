@@ -6,6 +6,7 @@ REPO_DIR=${DOTFILES_REPO_DIR:-$PWD}
 GITCONFIG_LOCAL=${DOTFILES_GITCONFIG_LOCAL:-$HOME/.gitconfig.local}
 SSH_KEY_PATH=${DOTFILES_SSH_KEY_PATH:-$HOME/.ssh/id_ed25519}
 SKIP_APPLY=${DOTFILES_SKIP_APPLY:-0}
+FORCE_SSH_KEYGEN=${DOTFILES_FORCE_SSH_KEYGEN:-0}
 
 log() {
   printf '[dotfiles] %s\n' "$*"
@@ -54,6 +55,25 @@ yes_no_prompt() {
   esac
 }
 
+is_remote_environment() {
+  [[ -n ${CODESPACES:-} ]] \
+    || [[ -n ${SSH_CONNECTION:-} ]] \
+    || [[ -n ${KUBERNETES_SERVICE_HOST:-} ]] \
+    || [[ -n ${container:-} ]] \
+    || [[ -n ${REMOTE_CONTAINERS:-} ]] \
+    || [[ -f /.dockerenv ]]
+}
+
+has_ssh_agent_identities() {
+  if ! command -v ssh-add >/dev/null 2>&1; then
+    return 1
+  fi
+
+  [[ -n ${SSH_AUTH_SOCK:-} ]] \
+    && [[ -S ${SSH_AUTH_SOCK} ]] \
+    && ssh-add -l >/dev/null 2>&1
+}
+
 ensure_git_identity() {
   mkdir -p "$(dirname "$GITCONFIG_LOCAL")"
   touch "$GITCONFIG_LOCAL"
@@ -92,12 +112,26 @@ ensure_ssh_key() {
     return 0
   fi
 
-  local email comment title
+  if [[ $FORCE_SSH_KEYGEN != 1 ]] && has_ssh_agent_identities; then
+    log "Detected SSH agent identities via SSH_AUTH_SOCK; reusing existing agent."
+    return 0
+  fi
+
+  local email comment title default_generate_key
   email=$(git config --file "$GITCONFIG_LOCAL" user.email 2>/dev/null || true)
   comment=${email:-"$(whoami)@$(hostname -s 2>/dev/null || hostname)"}
+  default_generate_key=Y
 
-  if ! yes_no_prompt "Generate a new SSH key at $SSH_KEY_PATH?" "Y"; then
-    warn "Skipping SSH key generation."
+  if is_remote_environment; then
+    default_generate_key=N
+  fi
+
+  if ! yes_no_prompt "Generate a new SSH key at $SSH_KEY_PATH?" "$default_generate_key"; then
+    if is_remote_environment; then
+      warn "Skipping SSH key generation. Reuse a forwarded agent or set DOTFILES_FORCE_SSH_KEYGEN=1 to create a local key here."
+    else
+      warn "Skipping SSH key generation."
+    fi
     return 0
   fi
 
