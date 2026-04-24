@@ -3,6 +3,8 @@
   "defaultThinkingLevel": "high",
   "editorPaddingX": 1,
   "hideThinkingBlock": false,
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.4",
   "transport": "sse",
   "enableInstallTelemetry": false,
   "treeFilterMode": "default",

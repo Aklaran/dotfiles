@@ -17,7 +17,7 @@ This repository contains my personal dotfiles, managed with [chezmoi](https://ww
 ├── .chezmoiscripts/           # chezmoi hook scripts (e.g., install packages)
 ├── .devcontainer/             # VS Code Dev Container config (Dockerfile, devcontainer.json)
 ├── dot_*                      # Dotfiles (bashrc, gitconfig, tmux, wezterm, zshrc, etc.)
-├── dot_config/                # XDG config files (alacritty, git, k9s, mise, nvim, opencode, starship, zellij)
+├── dot_config/                # XDG config files (alacritty, git, k9s, mise, nvim, starship, zellij)
 ├── private_dot_gnupg/         # Private GPG config (not tracked by chezmoi)
 ├── setup                      # Bootstrap script for new machines
 ```
@@ -73,6 +73,17 @@ DevPod is supported via `.chezmoiexternals/devpod.toml`, which ensures the DevPo
 - **Fonts**: DepartureMono (auto-installed)
 
 ---
+
+## First-Apply Review Checklist
+
+Before applying this repo to a new machine, review these files for identity- or host-specific behavior:
+
+- `dot_gitconfig` — shared Git defaults; decide whether to template `user.name` / `user.email`
+- `private_dot_ssh/config.tmpl` — SSH agent/use-keychain defaults
+- `private_dot_pi/private_agent/settings.json` — Pi default model/provider (`gpt-5.4` on `openai-codex`)
+- `.chezmoi.toml.tmpl` — local machines auto-commit/auto-push after changes
+- `setup` — bootstraps chezmoi via `curl`
+- `dot_tmux.conf.tmpl`, `dot_config/zellij/config.kdl`, `dot_config/systemd/user/voxtype.service` — contain host/path assumptions inherited from the source repo and should be checked before use
 
 ## Customization
 
