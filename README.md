@@ -35,7 +35,8 @@ Clone the repo and run the setup script:
 ```
 
 This will:
-- Set your shell to zsh (if available)
+- Bootstrap Git identity into `~/.gitconfig.local`
+- Generate `~/.ssh/id_ed25519` if missing and optionally upload it to GitHub via `gh`
 - Install chezmoi (if not present)
 - Apply all dotfiles to your home directory
 
@@ -52,7 +53,7 @@ DevPod is supported via `.chezmoiexternals/devpod.toml`, which ensures the DevPo
 
 ### 4. VS Code Dev Containers
 
-- The `.devcontainer/` folder contains a `devcontainer.json` and a `Dockerfile` based on `ghcr.io/rio/toolbox:latest`.
+- The `.devcontainer/` folder contains a `devcontainer.json` and a Debian-based `Dockerfile` with `mise` preinstalled.
 - Open the repo in VS Code and "Reopen in Container" to get a fully provisioned environment with all tools and dotfiles.
 
 ### 5. GitHub Codespaces
@@ -78,12 +79,34 @@ DevPod is supported via `.chezmoiexternals/devpod.toml`, which ensures the DevPo
 
 Before applying this repo to a new machine, review these files for identity- or host-specific behavior:
 
-- `dot_gitconfig` — shared Git defaults; decide whether to template `user.name` / `user.email`
-- `private_dot_ssh/config.tmpl` — SSH agent/use-keychain defaults
+- `dot_gitconfig` — shared Git defaults; identity is intentionally split into `~/.gitconfig.local`
+- `private_dot_ssh/config.tmpl` — SSH agent/use-keychain defaults plus the default GitHub key path
 - `private_dot_pi/private_agent/settings.json` — Pi default model/provider (`gpt-5.4` on `openai-codex`)
-- `.chezmoi.toml.tmpl` — local machines auto-commit/auto-push after changes
-- `setup` — bootstraps chezmoi via `curl`
-- `dot_tmux.conf.tmpl`, `dot_config/zellij/config.kdl`, `dot_config/systemd/user/voxtype.service` — contain host/path assumptions inherited from the source repo and should be checked before use
+- `.chezmoi.toml.tmpl` — chezmoi Git auto-commit/auto-push are disabled by default
+- `setup` — bootstraps Git identity, SSH keys, and chezmoi
+- `dot_tmux.conf.tmpl`, `dot_config/zellij/config.kdl`, `dot_config/systemd/user/voxtype.service` — shell/terminal/systemd defaults that may still need taste-level tuning
+
+## Git + SSH bootstrap
+
+`./setup` supports both interactive setup and non-interactive bootstrapping.
+
+Interactive flow:
+- prompts for `user.name` / `user.email` if `~/.gitconfig.local` is missing
+- generates `~/.ssh/id_ed25519` if needed
+- offers to upload the public key with `gh ssh-key add` when GitHub CLI is already authenticated
+
+Non-interactive flow:
+
+```sh
+DOTFILES_GIT_NAME="Your Name" \
+DOTFILES_GIT_EMAIL="you@example.com" \
+./setup
+```
+
+Useful overrides:
+- `DOTFILES_GITCONFIG_LOCAL` — alternate location for the per-machine Git identity file
+- `DOTFILES_SSH_KEY_PATH` — alternate SSH key path
+- `DOTFILES_SKIP_APPLY=1` — run bootstrap steps without applying chezmoi
 
 ## Customization
 

@@ -2,15 +2,154 @@
 
 set -euo pipefail
 
-if command -v chezmoi >/dev/null; then
-  chezmoi init --apply --source $PWD
-  exit 0
-fi
+REPO_DIR=${DOTFILES_REPO_DIR:-$PWD}
+GITCONFIG_LOCAL=${DOTFILES_GITCONFIG_LOCAL:-$HOME/.gitconfig.local}
+SSH_KEY_PATH=${DOTFILES_SSH_KEY_PATH:-$HOME/.ssh/id_ed25519}
+SKIP_APPLY=${DOTFILES_SKIP_APPLY:-0}
 
-if command -v mise >/dev/null; then
-  mise exec chezmoi -- chezmoi init --apply --source $PWD
-  exit 0
-fi
+log() {
+  printf '[dotfiles] %s\n' "$*"
+}
 
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply --source $PWD
-exit 0
+warn() {
+  printf '[dotfiles] warning: %s\n' "$*" >&2
+}
+
+prompt_with_default() {
+  local prompt="$1"
+  local default_value="${2:-}"
+  local answer
+
+  if [ ! -t 0 ]; then
+    printf '%s' "$default_value"
+    return 0
+  fi
+
+  if [ -n "$default_value" ]; then
+    read -r -p "$prompt [$default_value]: " answer
+    printf '%s' "${answer:-$default_value}"
+  else
+    read -r -p "$prompt: " answer
+    printf '%s' "$answer"
+  fi
+}
+
+yes_no_prompt() {
+  local prompt="$1"
+  local default_value="${2:-Y}"
+  local answer
+
+  if [ ! -t 0 ]; then
+    case "$default_value" in
+      Y|y) return 0 ;;
+      *) return 1 ;;
+    esac
+  fi
+
+  read -r -p "$prompt [$default_value/n]: " answer
+  answer=${answer:-$default_value}
+  case "$answer" in
+    Y|y|yes|YES) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+ensure_git_identity() {
+  mkdir -p "$(dirname "$GITCONFIG_LOCAL")"
+  touch "$GITCONFIG_LOCAL"
+
+  local existing_name existing_email desired_name desired_email
+  existing_name=$(git config --file "$GITCONFIG_LOCAL" user.name 2>/dev/null || true)
+  existing_email=$(git config --file "$GITCONFIG_LOCAL" user.email 2>/dev/null || true)
+
+  desired_name=${DOTFILES_GIT_NAME:-$existing_name}
+  desired_email=${DOTFILES_GIT_EMAIL:-$existing_email}
+
+  if [ -z "$desired_name" ]; then
+    desired_name=$(prompt_with_default "Git user.name" "$(git config --global user.name 2>/dev/null || true)")
+  fi
+
+  if [ -z "$desired_email" ]; then
+    desired_email=$(prompt_with_default "Git user.email" "$(git config --global user.email 2>/dev/null || true)")
+  fi
+
+  if [ -z "$desired_name" ] || [ -z "$desired_email" ]; then
+    warn "Git identity incomplete. Set DOTFILES_GIT_NAME / DOTFILES_GIT_EMAIL or rerun interactively."
+    return 0
+  fi
+
+  git config --file "$GITCONFIG_LOCAL" user.name "$desired_name"
+  git config --file "$GITCONFIG_LOCAL" user.email "$desired_email"
+  log "Configured Git identity in $GITCONFIG_LOCAL"
+}
+
+ensure_ssh_key() {
+  mkdir -p "$HOME/.ssh"
+  chmod 700 "$HOME/.ssh"
+
+  if [ -f "$SSH_KEY_PATH" ]; then
+    log "SSH key already exists at $SSH_KEY_PATH"
+    return 0
+  fi
+
+  local email comment title
+  email=$(git config --file "$GITCONFIG_LOCAL" user.email 2>/dev/null || true)
+  comment=${email:-"$(whoami)@$(hostname -s 2>/dev/null || hostname)"}
+
+  if ! yes_no_prompt "Generate a new SSH key at $SSH_KEY_PATH?" "Y"; then
+    warn "Skipping SSH key generation."
+    return 0
+  fi
+
+  ssh-keygen -t ed25519 -C "$comment" -f "$SSH_KEY_PATH" -N ""
+  chmod 600 "$SSH_KEY_PATH"
+  chmod 644 "$SSH_KEY_PATH.pub"
+
+  if command -v ssh-add >/dev/null 2>&1; then
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+      ssh-add --apple-use-keychain "$SSH_KEY_PATH" >/dev/null 2>&1 || ssh-add "$SSH_KEY_PATH" >/dev/null 2>&1 || true
+    else
+      ssh-add "$SSH_KEY_PATH" >/dev/null 2>&1 || true
+    fi
+  fi
+
+  log "Generated SSH key: $SSH_KEY_PATH"
+  log "Public key: ${SSH_KEY_PATH}.pub"
+  cat "${SSH_KEY_PATH}.pub"
+
+  if command -v gh >/dev/null 2>&1; then
+    if gh auth status >/dev/null 2>&1; then
+      if yes_no_prompt "Upload this SSH key to GitHub with gh?" "Y"; then
+        title="$(hostname -s 2>/dev/null || hostname)-$(date +%Y-%m-%d)"
+        gh ssh-key add "${SSH_KEY_PATH}.pub" --title "$title" || warn "GitHub SSH key upload failed; you can rerun: gh ssh-key add ${SSH_KEY_PATH}.pub --title $title"
+      fi
+    else
+      warn "gh is installed but not authenticated. Run 'gh auth login' and then 'gh ssh-key add ${SSH_KEY_PATH}.pub'."
+    fi
+  else
+    warn "gh CLI not found. Add ${SSH_KEY_PATH}.pub to GitHub manually if needed."
+  fi
+}
+
+apply_chezmoi() {
+  if [ "$SKIP_APPLY" = "1" ]; then
+    log "Skipping chezmoi apply because DOTFILES_SKIP_APPLY=1"
+    return 0
+  fi
+
+  if command -v chezmoi >/dev/null 2>&1; then
+    chezmoi init --apply --source "$REPO_DIR"
+    return 0
+  fi
+
+  if command -v mise >/dev/null 2>&1; then
+    mise exec chezmoi -- chezmoi init --apply --source "$REPO_DIR"
+    return 0
+  fi
+
+  sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply --source "$REPO_DIR"
+}
+
+ensure_git_identity
+ensure_ssh_key
+apply_chezmoi

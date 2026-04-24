@@ -1,5 +1,8 @@
-# Intentionally no hardcoded [user] identity here.
-# Set user.name / user.email separately if you want them managed per-machine.
+# Shared Git defaults for all machines.
+# Per-machine identity lives in ~/.gitconfig.local, which setup bootstraps.
+
+[include]
+	path = ~/.gitconfig.local
 
 [init]
 	defaultBranch = main
