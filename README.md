@@ -69,7 +69,7 @@ DevPod is supported via `.chezmoiexternals/devpod.toml`, which ensures the DevPo
 - **Editor**: [Neovim](https://neovim.io/) (LazyVim-based), with plugins and extras
 - **Terminal**: [WezTerm](https://wezfurlong.org/wezterm/), [alacritty](https://alacritty.org/)
 - **Multiplexers**: tmux, zellij
-- **Tools**: Managed with [mise](https://mise.jdx.dev/) (see `.config/mise/config.toml`)
+- **Tools**: Managed with [mise](https://mise.jdx.dev/) (see `.config/mise/mise.toml`)
 - **Kubernetes**: k9s with custom skin
 - **Fonts**: DepartureMono (auto-installed)
 
@@ -113,7 +113,7 @@ Useful overrides:
 ## Customization
 
 - All dotfiles are templated for local/remote/container/cloud detection
-- Add or modify tools in `.config/mise/config.toml`
+- Add or modify tools in `.config/mise/mise.toml`
 - Add external resources in `.chezmoiexternals/`
 - Add post-install scripts in `.chezmoiscripts/`
 
