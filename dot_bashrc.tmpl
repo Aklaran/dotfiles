@@ -1,52 +1,5 @@
-{{- $remote := or (env "CODESPACES" | not | not) (env "SSH_CONNECTION" | not | not) (env "KUBERNETES_SERVICE_HOST" | not | not) (env "container" | not | not) (env "REMOTE_CONTAINERS" | not | not) (stat "/.dockerenv" | not | not) -}}
-
-set -o vi
-
-# edit PATH
-if [[ -d $HOME/.local/bin ]]; then
-  export PATH=$HOME/.local/bin:$PATH
-fi
-
-{{if not .remote -}}
-# pick up macOS launchd ssh-agent socket
-if [ -z "${SSH_AUTH_SOCK:-}" ] && command -v launchctl >/dev/null 2>&1; then
-  export SSH_AUTH_SOCK="$(launchctl getenv SSH_AUTH_SOCK)"
-fi
-
-# setup gpg-agent ssh
-if command -v gpgconf >/dev/null 2>&1; then
-  unset SSH_AGENT_PID
-  if [ "${gnupg_SSH_AUTH_SOCK_by:-0}" -ne $$ ]; then
-    export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
-  fi
-fi
-{{- end}}
-
-if command -v mise >/dev/null; then
-  eval "$(mise activate bash)"
-fi
-
-export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml"
-
-# (neo)vim
-if command -v nvim > /dev/null ; then
-  export EDITOR="nvim"
-  export VISUAL="nvim"
-elif command -v vim > /dev/null ; then
-  export EDITOR="vim"
-  export VISUAL="vim"
-fi
-
-# enable the starship prompt
-if command -v starship >/dev/null; then
-  eval "$(starship init bash)"
-fi
-
-# use bat instead of cat
-if command -v bat >/dev/null; then
-  alias cat="bat"
-fi
-
-if command -v lazygit >/dev/null; then
-  alias lg="lazygit"
+# Keep bash as a thin compatibility shim and hand off interactive shells to zsh.
+if [[ $- == *i* ]] && command -v zsh >/dev/null 2>&1 && [[ -z "${ZSH_VERSION:-}" ]]; then
+  export SHELL="$(command -v zsh)"
+  exec zsh -l
 fi
