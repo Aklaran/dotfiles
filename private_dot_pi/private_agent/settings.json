@@ -8,5 +8,9 @@
   "transport": "sse",
   "enableInstallTelemetry": false,
   "treeFilterMode": "default",
-  "theme": "catppuccin-mocha"
+  "theme": "catppuccin-mocha",
+  "extensions": [
+    "./extensions/pi-diff-ui",
+    "./extensions/sirdar"
+  ]
 }

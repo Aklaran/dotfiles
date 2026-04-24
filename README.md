@@ -39,6 +39,7 @@ This will:
 - Generate `~/.ssh/id_ed25519` if missing and optionally upload it to GitHub via `gh`
 - Install chezmoi (if not present)
 - Apply all dotfiles to your home directory
+- Install Pi via `mise` and fetch/build the `sirdar` + `pi-diff-ui` extensions
 
 ### 2. chezmoi
 
@@ -70,6 +71,7 @@ DevPod is supported via `.chezmoiexternals/devpod.toml`, which ensures the DevPo
 - **Terminal**: [WezTerm](https://wezfurlong.org/wezterm/), [alacritty](https://alacritty.org/)
 - **Multiplexers**: tmux, zellij
 - **Tools**: Managed with [mise](https://mise.jdx.dev/) (see `.config/mise/mise.toml`)
+- **AI tooling**: Pi is installed via `mise`, with `sirdar` and `pi-diff-ui` bootstrapped into `~/.pi/agent/extensions`
 - **Kubernetes**: k9s with custom skin
 - **Fonts**: DepartureMono (auto-installed)
 
@@ -81,9 +83,10 @@ Before applying this repo to a new machine, review these files for identity- or 
 
 - `dot_gitconfig` — shared Git defaults; identity is intentionally split into `~/.gitconfig.local`
 - `private_dot_ssh/config.tmpl` — SSH agent/use-keychain defaults plus the default GitHub key path
-- `private_dot_pi/private_agent/settings.json` — Pi default model/provider (`gpt-5.4` on `openai-codex`)
+- `private_dot_pi/private_agent/settings.json` — Pi default model/provider (`gpt-5.4` on `openai-codex`) plus local extension loading
 - `.chezmoi.toml.tmpl` — chezmoi Git auto-commit/auto-push are disabled by default
 - `setup` — bootstraps Git identity, SSH keys, and chezmoi
+- `.chezmoiexternals/sirdar.toml`, `.chezmoiexternals/pi-diff-ui.toml`, `.chezmoiscripts/run_onchange_after_install_pi_extensions.sh.tmpl` — Pi extension source + build/install wiring
 - `dot_tmux.conf.tmpl`, `dot_config/zellij/config.kdl`, `dot_config/systemd/user/voxtype.service` — shell/terminal/systemd defaults that may still need taste-level tuning
 
 ## Git + SSH bootstrap

@@ -577,3 +577,7 @@ url = "https://github.com/ajeetdsouza/zoxide/releases/download/v0.9.8/zoxide-0.9
 
 [tools.zoxide."platforms.windows-x64"]
 url = "https://github.com/ajeetdsouza/zoxide/releases/download/v0.9.8/zoxide-0.9.8-x86_64-pc-windows-msvc.zip"
+
+[[tools."npm:@mariozechner/pi-coding-agent"]]
+version = "0.69.0"
+backend = "npm:@mariozechner/pi-coding-agent"
