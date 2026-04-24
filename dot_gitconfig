@@ -1,0 +1,29 @@
+# Intentionally no hardcoded [user] identity here.
+# Set user.name / user.email separately if you want them managed per-machine.
+
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = false
+
+[push]
+	autoSetupRemote = true
+
+[branch]
+	autoSetupMerge = true
+
+[rebase]
+	updateRefs = true
+
+[diff]
+  external = difft
+
+[url "git@github.com:"]
+	insteadOf = https://github.com/
+
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process

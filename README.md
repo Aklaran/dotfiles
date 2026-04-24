@@ -1,65 +1,88 @@
 # dotfiles
 
-Personal configuration files, managed with [GNU Stow](https://www.gnu.org/software/stow/).
+This repository contains my personal dotfiles, managed with [chezmoi](https://www.chezmoi.io/), and designed for seamless use across local, containerized, and cloud development environments. It is structured to work out-of-the-box with:
 
-## What's Inside
+- **chezmoi**: For dotfile management and templating
+- **DevPod**: For reproducible development environments
+- **VS Code Dev Containers**: For local and remote container-based development
+- **GitHub Codespaces**: For cloud-based development
 
-| Package | What | Key choices |
-|---------|------|-------------|
-| `nvim` | Neovim config | Lazy.nvim, Kanagawa theme, Telescope, LSP, Treesitter, Oil |
-| `ghostty` | Ghostty terminal | Iosevka Nerd Font Mono |
+---
 
-## Install
+## Repository Structure
 
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/Aklaran/dotfiles ~/.dotfiles
-   cd ~/.dotfiles
-   ```
+```
+├── .chezmoi.toml.tmpl         # chezmoi configuration (templated)
+├── .chezmoiexternals/         # chezmoi-managed external resources (tools, fonts, configs)
+├── .chezmoiscripts/           # chezmoi hook scripts (e.g., install packages)
+├── .devcontainer/             # VS Code Dev Container config (Dockerfile, devcontainer.json)
+├── dot_*                      # Dotfiles (bashrc, gitconfig, tmux, wezterm, zshrc, etc.)
+├── dot_config/                # XDG config files (alacritty, git, k9s, mise, nvim, opencode, starship, zellij)
+├── private_dot_gnupg/         # Private GPG config (not tracked by chezmoi)
+├── setup                      # Bootstrap script for new machines
+```
 
-2. Install [GNU Stow](https://www.gnu.org/software/stow/) if you don't have it.
+---
 
-3. Install a [Nerd Font](https://www.nerdfonts.com/) (I use Iosevka Nerd Font Mono).
+## Usage
 
-4. Run the install script:
-   ```bash
-   ./install.sh
-   ```
+### 1. Bootstrapping (Any Environment)
 
-   Or stow individual packages:
-   ```bash
-   stow nvim        # just neovim
-   stow ghostty     # just ghostty
-   ```
+Clone the repo and run the setup script:
 
-## Neovim Plugins
+```sh
+./setup
+```
 
-Managed with [lazy.nvim](https://github.com/folke/lazy.nvim). Plugins install automatically on first launch.
+This will:
+- Set your shell to zsh (if available)
+- Install chezmoi (if not present)
+- Apply all dotfiles to your home directory
 
-**Navigation:** Telescope (fuzzy finder), Oil (file explorer), Which-Key (keymap hints)
-**Editing:** LSP + completion, Treesitter (syntax), Autopairs, Surround, Comment
-**Git:** Gitsigns (hunk nav, inline blame, staging)
-**UI:** Kanagawa colorscheme, Lualine, indent guides, smooth scrolling, notifications
-**Notes:** Obsidian.nvim (Sanctuary/wiki navigation), render-markdown.nvim
+### 2. chezmoi
 
-## Key Bindings
+chezmoi manages all dotfiles, templates, and external resources. It detects if you are running in a remote/container/Codespaces environment and adapts accordingly (see `.chezmoi.toml.tmpl`).
 
-Leader is `<Space>`.
+- **chezmoi apply**: Apply dotfiles to your home directory
+- **chezmoi update**: Pull and apply latest changes
 
-| Key | Action |
-|-----|--------|
-| `<leader>ff` | Find files |
-| `<leader>/` | Search in project (grep) |
-| `<leader><leader>` | Find files (alt) |
-| `<leader>e` | File explorer (Oil float) |
-| `-` | Open parent directory (Oil) |
-| `<leader>d` | Show diagnostic |
-| `<leader>w` | Save |
-| `<leader>q` | Quit |
-| `gd` | Go to definition |
-| `gr` | Find references |
-| `K` | Hover docs |
-| `<leader>rn` | Rename symbol |
-| `<leader>ca` | Code action |
-| `]h` / `[h` | Next/prev git hunk |
-| `<leader>cl` | Copy chat reference |
+### 3. DevPod
+
+DevPod is supported via `.chezmoiexternals/devpod.toml`, which ensures the DevPod binary is installed and available in your environment.
+
+### 4. VS Code Dev Containers
+
+- The `.devcontainer/` folder contains a `devcontainer.json` and a `Dockerfile` based on `ghcr.io/rio/toolbox:latest`.
+- Open the repo in VS Code and "Reopen in Container" to get a fully provisioned environment with all tools and dotfiles.
+
+### 5. GitHub Codespaces
+
+- This repo is Codespaces-ready. Just "Open in Codespaces" on GitHub and all dotfiles, tools, and configs will be provisioned automatically.
+
+---
+
+## Highlights
+
+- **Shells**: zsh (default), bash
+- **Prompt**: [starship](https://starship.rs/) with custom theme
+- **Editor**: [Neovim](https://neovim.io/) (LazyVim-based), with plugins and extras
+- **Terminal**: [WezTerm](https://wezfurlong.org/wezterm/), [alacritty](https://alacritty.org/)
+- **Multiplexers**: tmux, zellij
+- **Tools**: Managed with [mise](https://mise.jdx.dev/) (see `.config/mise/config.toml`)
+- **Kubernetes**: k9s with custom skin
+- **Fonts**: DepartureMono (auto-installed)
+
+---
+
+## Customization
+
+- All dotfiles are templated for local/remote/container/cloud detection
+- Add or modify tools in `.config/mise/config.toml`
+- Add external resources in `.chezmoiexternals/`
+- Add post-install scripts in `.chezmoiscripts/`
+
+---
+
+## License
+
+These dotfiles are provided as-is for personal use and inspiration. Use at your own risk.

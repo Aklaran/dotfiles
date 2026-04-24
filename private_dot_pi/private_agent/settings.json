@@ -1,0 +1,10 @@
+{
+  "lastChangelogVersion": "0.67.68",
+  "defaultThinkingLevel": "high",
+  "editorPaddingX": 1,
+  "hideThinkingBlock": false,
+  "transport": "sse",
+  "enableInstallTelemetry": false,
+  "treeFilterMode": "default",
+  "theme": "catppuccin-mocha"
+}
