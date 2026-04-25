@@ -184,6 +184,29 @@ apply_chezmoi() {
   sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply --source "$REPO_DIR"
 }
 
+cleanup_legacy_pi_extensions() {
+  local legacy_dirs=(
+    "$HOME/.pi/agent/extensions/pi-diff-ui"
+    "$HOME/.pi/agent/extensions/sirdar"
+    "$HOME/.pi/agent/extensions/orchestrator"
+  )
+
+  local removed=0
+  local dir
+  for dir in "${legacy_dirs[@]}"; do
+    if [ -e "$dir" ]; then
+      rm -rf "$dir"
+      log "Removed legacy Pi extension path: $dir"
+      removed=1
+    fi
+  done
+
+  if [ "$removed" = "0" ]; then
+    log "No legacy Pi extension paths needed cleanup"
+  fi
+}
+
 ensure_git_identity
 ensure_ssh_key
 apply_chezmoi
+cleanup_legacy_pi_extensions

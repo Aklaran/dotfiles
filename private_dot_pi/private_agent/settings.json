@@ -9,8 +9,7 @@
   "enableInstallTelemetry": false,
   "treeFilterMode": "default",
   "theme": "catppuccin-mocha",
-  "extensions": [
-    "./extensions/pi-diff-ui",
-    "./extensions/sirdar"
+  "packages": [
+    "https://github.com/Aklaran/sirdar"
   ]
 }
