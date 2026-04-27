@@ -9,3 +9,6 @@ vim.g.lazyvim_check_order = false
 
 vim.opt.relativenumber = false
 vim.opt.scrolloff = 8
+
+vim.g.clipboard = "osc52"
+vim.opt.clipboard = "unnamedplus"
