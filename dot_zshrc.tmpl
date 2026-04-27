@@ -10,6 +10,16 @@ setopt HIST_IGNORE_DUPS  # do not save duplicate commands
 # solve weird extra character issues when auto completing
 export LANG="en_US.UTF-8"
 
+# Fall back to a widely available TERM when the advertised terminal
+# is unknown in the current environment (eg. xterm-ghostty in DevPods).
+if [[ -n "${TERM:-}" ]]; then
+  if (( $+commands[infocmp] )); then
+    infocmp "$TERM" >/dev/null 2>&1 || export TERM="xterm-256color"
+  elif [[ "$TERM" == "xterm-ghostty" ]]; then
+    export TERM="xterm-256color"
+  fi
+fi
+
 # add user local completion folder to fpath
 fpath+=(~/.zsh/completion)
 
