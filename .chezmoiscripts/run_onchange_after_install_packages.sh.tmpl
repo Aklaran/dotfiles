@@ -4,7 +4,42 @@
 
 set -euo pipefail
 
-MISE_BIN_PATH="{{ if $m := lookPath "mise" }}{{ $m }}{{ else if $l := lookPath (joinPath .chezmoi.homeDir ".local/bin/mise") }}{{ $l }}{{ else }}mise{{ end }}"
+MISE_CONFIG_PATH="{{ .chezmoi.homeDir }}/.config/mise/mise.toml"
+MISE_LOCAL_BIN="{{ .chezmoi.homeDir }}/.local/bin/mise"
+MISE_BIN_PATH="{{ if $l := lookPath (joinPath .chezmoi.homeDir ".local/bin/mise") }}{{ $l }}{{ else if $m := lookPath "mise" }}{{ $m }}{{ else }}mise{{ end }}"
 
-$MISE_BIN_PATH trust {{ .chezmoi.homeDir }}/.config/mise
-$MISE_BIN_PATH install
+version_lt() {
+  local left="$1" right="$2"
+  [[ "$left" != "$right" ]] && [[ "$(printf '%s\n%s\n' "$left" "$right" | sort -V | head -n1)" == "$left" ]]
+}
+
+required_mise_version() {
+  awk -F '"' '/^min_version *=/ { print $2; exit }' "$MISE_CONFIG_PATH"
+}
+
+current_mise_version() {
+  "$1" --version 2>/dev/null | awk '{print $1}'
+}
+
+ensure_compatible_mise() {
+  local required current
+  required="$(required_mise_version)"
+  current="$(current_mise_version "$MISE_BIN_PATH" || true)"
+
+  if [[ -z "$required" ]]; then
+    return 0
+  fi
+
+  if [[ -n "$current" ]] && ! version_lt "$current" "$required"; then
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$MISE_LOCAL_BIN")"
+  echo "[dotfiles] Installing mise $required to $MISE_LOCAL_BIN"
+  curl -sSfL https://mise.run | MISE_VERSION="$required" MISE_INSTALL_PATH="$MISE_LOCAL_BIN" sh
+  MISE_BIN_PATH="$MISE_LOCAL_BIN"
+}
+
+ensure_compatible_mise
+"$MISE_BIN_PATH" trust {{ .chezmoi.homeDir }}/.config/mise
+"$MISE_BIN_PATH" install

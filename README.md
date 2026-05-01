@@ -39,6 +39,7 @@ This will:
 - Generate `~/.ssh/id_ed25519` if missing and optionally upload it to GitHub via `gh`
 - Install chezmoi (if not present)
 - Apply all dotfiles to your home directory
+- Ensure a compatible user-local `mise` is available when the current environment ships an older version (for example, repo-specific devcontainers)
 - Install Pi via `mise`
 - Configure Pi to install `sirdar` as a package on first startup
 - Remove stale legacy Pi extension directories (`pi-diff-ui`, `sirdar`, `orchestrator`) if they exist from the old bootstrap pattern
