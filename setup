@@ -7,6 +7,8 @@ GITCONFIG_LOCAL=${DOTFILES_GITCONFIG_LOCAL:-$HOME/.gitconfig.local}
 SSH_KEY_PATH=${DOTFILES_SSH_KEY_PATH:-$HOME/.ssh/id_ed25519}
 SKIP_APPLY=${DOTFILES_SKIP_APPLY:-0}
 FORCE_SSH_KEYGEN=${DOTFILES_FORCE_SSH_KEYGEN:-0}
+DOTFILES_MISE_CONFIG=${DOTFILES_MISE_CONFIG:-$REPO_DIR/dot_config/mise/mise.toml}
+DOTFILES_MISE_LOCAL_BIN=${DOTFILES_MISE_LOCAL_BIN:-$HOME/.local/bin/mise}
 
 log() {
   printf '[dotfiles] %s\n' "$*"
@@ -165,19 +167,67 @@ ensure_ssh_key() {
   fi
 }
 
+version_lt() {
+  local left="$1" right="$2"
+  [[ "$left" != "$right" ]] && [[ "$(printf '%s\n%s\n' "$left" "$right" | sort -V | head -n1)" == "$left" ]]
+}
+
+required_mise_version() {
+  if [[ -f "$DOTFILES_MISE_CONFIG" ]]; then
+    awk -F '"' '/^min_version *=/ { print $2; exit }' "$DOTFILES_MISE_CONFIG"
+  fi
+}
+
+resolve_mise_bin() {
+  if [[ -x "$DOTFILES_MISE_LOCAL_BIN" ]]; then
+    printf '%s\n' "$DOTFILES_MISE_LOCAL_BIN"
+    return 0
+  fi
+
+  command -v mise 2>/dev/null || true
+}
+
+current_mise_version() {
+  "$1" --version 2>/dev/null | awk '{print $1}'
+}
+
+ensure_compatible_mise() {
+  local required mise_bin current
+  required="$(required_mise_version)"
+  [[ -n "$required" ]] || return 0
+
+  mise_bin="$(resolve_mise_bin)"
+  current=""
+  if [[ -n "$mise_bin" ]]; then
+    current="$(current_mise_version "$mise_bin" || true)"
+  fi
+
+  if [[ -n "$current" ]] && ! version_lt "$current" "$required"; then
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$DOTFILES_MISE_LOCAL_BIN")"
+  log "Installing mise $required to $DOTFILES_MISE_LOCAL_BIN"
+  curl -sSfL https://mise.run | MISE_VERSION="$required" MISE_INSTALL_PATH="$DOTFILES_MISE_LOCAL_BIN" sh
+}
+
 apply_chezmoi() {
   if [ "$SKIP_APPLY" = "1" ]; then
     log "Skipping chezmoi apply because DOTFILES_SKIP_APPLY=1"
     return 0
   fi
 
+  ensure_compatible_mise
+
   if command -v chezmoi >/dev/null 2>&1; then
     chezmoi init --apply --source "$REPO_DIR"
     return 0
   fi
 
-  if command -v mise >/dev/null 2>&1; then
-    mise exec chezmoi -- chezmoi init --apply --source "$REPO_DIR"
+  local mise_bin
+  mise_bin="$(resolve_mise_bin)"
+  if [[ -n "$mise_bin" ]]; then
+    "$mise_bin" exec chezmoi -- chezmoi init --apply --source "$REPO_DIR"
     return 0
   fi
 
