@@ -5,7 +5,7 @@ bat = "0.26.1"
 doggo = "1.1.4"
 fd = "10.3.0"
 fzf = "0.67.0"
-github-cli = "2.86.0"
+"github:cli/cli" = { version = "2.86.0", exe = "gh" }  # was github-cli; aqua backend hits flaky GitHub attestations API
 jj = "0.39.0"
 lazygit = "0.61.1"
 lsd = "1.2.0"
