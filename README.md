@@ -55,6 +55,55 @@ chezmoi manages all dotfiles, templates, and external resources. It detects if y
 
 DevPod is supported via `.chezmoiexternals/devpod.toml`, which ensures the DevPod binary is installed and available in your environment.
 
+On the host, `dot_zshrc.tmpl` defines a `devpod()` shell wrapper that injects sensible defaults into every `devpod up`, each only if you didn't already pass it explicitly:
+
+| Auto-injected flag | Purpose | Source |
+|---|---|---|
+| `--ide none` | Don't auto-launch openvscode in the browser | hardcoded — pass `--ide openvscode` to override |
+| `--dotfiles $DOTFILES_REPO_URL` | Bootstrap every devpod with this repo | `git@github.com:aklaran/dotfiles` |
+| `--mount` for `~/repos/obsidian-vault` | Bind-mount Obsidian vault to `/obsidian` (symlinked to `~/Obsidian` inside) | only if the vault dir exists on host |
+| `--mount` for `~/.pi/agent/auth.json` | Share pi login token; sessions stay devpod-local | only if file exists on host |
+| `--mount` for `~/.claude/.credentials.json`, `~/.claude.json`, `~/.claude/CLAUDE.md` | Share Claude Code login + user memory; sessions/policy-limits/backups stay devpod-local | each only if present |
+| `--workspace-env DOTFILES_GIT_NAME` / `DOTFILES_GIT_EMAIL` | Forward host git identity so `setup` runs non-interactively in the devpod | read from `~/.gitconfig.local` (or `--global`) |
+
+Which means: log in to pi / Claude Code once on the host, and every existing + future devpod inherits the auth. Same for git identity.
+
+#### Existing devpods
+
+New bind mounts only take effect on container (re)create. To pick up the auth/vault mounts on a workspace that already exists:
+
+```sh
+devpod up --recreate <workspace>
+```
+
+This rebuilds the container around the persistent home volume — installed tooling and your `setup` results survive.
+
+#### Obsidian vault
+
+To enable the auto-mount, create a git-backed vault at `~/repos/obsidian-vault`:
+
+```sh
+mkdir -p ~/repos/obsidian-vault && cd ~/repos/obsidian-vault
+git init -b main
+cat > .gitignore <<'EOF'
+.obsidian/workspace*.json
+.obsidian/cache
+.trash/
+EOF
+git add -A && git commit -m "init vault"
+gh repo create obsidian-vault --private --source=. --push
+```
+
+Open the folder once in Obsidian.app on your Mac, then enable the **Obsidian Git** community plugin with auto-pull on startup + auto-commit/push on an interval. Inside any devpod the vault is at `~/Obsidian` with an `obs` alias to jump there. Agents can `cd $OBSIDIAN_VAULT && git pull/commit/push` using the forwarded SSH agent.
+
+#### Trust caveats for the auth mounts
+
+- Anything inside a devpod can read your pi / Claude tokens (same posture as your forwarded SSH agent). Fine for personal repos; reconsider for someone else's devpod.
+- Only auth files (and Claude's `CLAUDE.md` user memory) are shared. Sessions, extensions, policy-limits, and per-machine state are NOT mounted, so two devpods can run concurrent agent sessions without races.
+- Auth files are single-file bind mounts; if either app ever switches to atomic-rename writes the in-container view will go stale (you'd see "logged out" inside the devpod). Recover by recreating the container or, as a workaround, removing the affected line from the wrapper and re-logging in per devpod.
+- `~/.claude.json` also contains project history; sharing it means your Mac's repo paths show up in `claude --resume` lists inside devpods. Mostly cosmetic.
+- Per-agent memory: pi has no first-party memory — save anything you want to remember to the mounted Obsidian vault. Claude Code's user-level memory lives in `~/.claude/CLAUDE.md` and is shared via the wrapper.
+
 ### 4. VS Code Dev Containers
 
 - The `.devcontainer/` folder contains a `devcontainer.json` and a Debian-based `Dockerfile` with `mise` preinstalled.
@@ -90,6 +139,7 @@ Before applying this repo to a new machine, review these files for identity- or 
 - `.chezmoi.toml.tmpl` — chezmoi Git auto-commit/auto-push are disabled by default
 - `setup` — bootstraps Git identity, SSH keys, and chezmoi
 - `private_dot_pi/private_agent/settings.json` — review the configured Pi package sources before first apply on a new machine
+- `dot_zshrc.tmpl` — host-side `devpod()` wrapper hardcodes `DOTFILES_REPO_URL` and `OBSIDIAN_VAULT_HOST`; update if your username or vault path differ
 - `dot_tmux.conf.tmpl`, `dot_config/zellij/config.kdl`, `dot_config/systemd/user/voxtype.service` — shell/terminal/systemd defaults that may still need taste-level tuning
 
 ## Git + SSH bootstrap
