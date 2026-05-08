@@ -38,12 +38,11 @@ export PATH=$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/sh
 
 {{if not .remote -}}
 # Per-user devpod defaults. We wrap `devpod up` to inject:
-#   - --ide none                    (don't auto-launch openvscode)
-#   - --dotfiles <repo>             (always bootstrap with these dotfiles)
-#   - --mount /obsidian             (bind-mount the obsidian vault, if present)
+#   - --ide none                     (don't auto-launch openvscode)
+#   - --dotfiles <repo>              (always bootstrap with these dotfiles)
 #   - --workspace-env DOTFILES_GIT_* (forward host git identity so setup is non-interactive)
+#   - --workspace-env GITHUB_TOKEN   (forward GitHub auth so mise avoids low anonymous rate limits)
 # Each is only added if the caller didn't already specify it.
-export OBSIDIAN_VAULT_HOST="$HOME/repos/obsidian-vault"
 export DOTFILES_REPO_URL="git@github.com:aklaran/dotfiles"
 devpod() {
   if [[ "$1" != "up" ]]; then
@@ -58,33 +57,17 @@ devpod() {
   [[ "$joined" != *" --ide "* ]] && extra+=(--ide none)
   [[ "$joined" != *" --dotfiles "* ]] && extra+=(--dotfiles "$DOTFILES_REPO_URL")
 
-  if [[ -d "$OBSIDIAN_VAULT_HOST" && "$joined" != *"src=$OBSIDIAN_VAULT_HOST"* ]]; then
-    extra+=(--mount "type=bind,src=$OBSIDIAN_VAULT_HOST,dst=/obsidian")
-  fi
-
-  # Share agent AUTH (and only auth) from host so we don't re-login per devpod.
-  # Sessions / per-machine state stay devpod-local to avoid races. Container
-  # user is `vscode` on these devcontainers.
-  local devpod_home="/home/vscode"
-  local auth_paths=(
-    "$HOME/.pi/agent/auth.json:$devpod_home/.pi/agent/auth.json"
-    "$HOME/.claude/.credentials.json:$devpod_home/.claude/.credentials.json"
-    "$HOME/.claude.json:$devpod_home/.claude.json"
-    # Optional: share Claude Code user memory across devpods.
-    "$HOME/.claude/CLAUDE.md:$devpod_home/.claude/CLAUDE.md"
-  )
-  local pair src dst
-  for pair in "${auth_paths[@]}"; do
-    src="${pair%%:*}"
-    dst="${pair##*:}"
-    [[ -e "$src" && "$joined" != *"$src"* ]] && extra+=(--mount "type=bind,src=$src,dst=$dst")
-  done
-
-  local git_name git_email
+  local git_name git_email github_token
   git_name=$(git config --file "$HOME/.gitconfig.local" user.name 2>/dev/null || git config --global user.name 2>/dev/null)
   git_email=$(git config --file "$HOME/.gitconfig.local" user.email 2>/dev/null || git config --global user.email 2>/dev/null)
+  github_token="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
+  if [[ -z "$github_token" ]] && command -v gh >/dev/null 2>&1; then
+    github_token="$(gh auth token 2>/dev/null || true)"
+  fi
+
   [[ -n "$git_name" && "$joined" != *"DOTFILES_GIT_NAME"* ]] && extra+=(--workspace-env "DOTFILES_GIT_NAME=$git_name")
   [[ -n "$git_email" && "$joined" != *"DOTFILES_GIT_EMAIL"* ]] && extra+=(--workspace-env "DOTFILES_GIT_EMAIL=$git_email")
+  [[ -n "$github_token" && "$joined" != *"GITHUB_TOKEN"* ]] && extra+=(--workspace-env "GITHUB_TOKEN=$github_token")
 
   command devpod "$@" "${extra[@]}"
 }
@@ -186,14 +169,6 @@ if [[ -d .zsh/zsh-autosuggestions ]] ; then
   source .zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 fi
 
-{{if .remote -}}
-# Obsidian vault: bind-mounted from host to /obsidian (see host devpod() wrapper).
-# Symlink to ~/Obsidian for ergonomics, expose env, add quick alias.
-if [[ -d /obsidian ]]; then
-  [[ -e "$HOME/Obsidian" ]] || ln -s /obsidian "$HOME/Obsidian"
-  export OBSIDIAN_VAULT="$HOME/Obsidian"
-fi
-{{- end}}
 
 # syntax highlighting needs to be at the end because of reasons
 if [[ -d .zsh/zsh-syntax-highlighting ]] ; then

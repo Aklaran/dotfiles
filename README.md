@@ -62,6 +62,9 @@ On the host, `dot_zshrc.tmpl` defines a `devpod()` shell wrapper that injects se
 | `--ide none` | Don't auto-launch openvscode in the browser | hardcoded — pass `--ide openvscode` to override |
 | `--dotfiles $DOTFILES_REPO_URL` | Bootstrap every devpod with this repo | `git@github.com:aklaran/dotfiles` |
 | `--workspace-env DOTFILES_GIT_NAME` / `DOTFILES_GIT_EMAIL` | Forward host git identity so `setup` runs non-interactively in the devpod | read from `~/.gitconfig.local` (or `--global`) |
+| `--workspace-env GITHUB_TOKEN` | Forward GitHub auth so `mise` gets higher API limits inside the workspace | `GITHUB_TOKEN`, `GH_TOKEN`, or `gh auth token` on the host |
+
+This is especially useful for `mise install`, since `mise` will use `GITHUB_TOKEN` for authenticated GitHub API requests. Anything inside the devpod can read that token, so use the same trust posture you already use for forwarded SSH agent access.
 
 ### 4. VS Code Dev Containers
 
@@ -98,7 +101,7 @@ Before applying this repo to a new machine, review these files for identity- or 
 - `.chezmoi.toml.tmpl` — chezmoi Git auto-commit/auto-push are disabled by default
 - `setup` — bootstraps Git identity, SSH keys, and chezmoi
 - `private_dot_pi/private_agent/settings.json` — review the configured Pi package sources before first apply on a new machine
-- `dot_zshrc.tmpl` — host-side `devpod()` wrapper hardcodes `DOTFILES_REPO_URL` and `OBSIDIAN_VAULT_HOST`; update if your username or vault path differ
+- `dot_zshrc.tmpl` — host-side `devpod()` wrapper hardcodes `DOTFILES_REPO_URL` and forwards host GitHub auth into workspaces; review before first apply on a new machine
 - `dot_tmux.conf.tmpl`, `dot_config/zellij/config.kdl`, `dot_config/systemd/user/voxtype.service` — shell/terminal/systemd defaults that may still need taste-level tuning
 
 ## Git + SSH bootstrap
